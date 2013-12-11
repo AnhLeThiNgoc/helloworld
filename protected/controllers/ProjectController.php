@@ -2,6 +2,7 @@
 
 class ProjectController extends Controller
 {
+
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
@@ -27,22 +28,30 @@ class ProjectController extends Controller
 	public function accessRules()
 	{
 		return array(
-			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view'),
-				'users'=>array('*'),
-			),
-			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
-				'users'=>array('@'),
-			),
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete'),
-				'users'=>array('admin'),
-			),
-			array('deny',  // deny all users
-				'users'=>array('*'),
-			),
-		);
+		 	array('allow',  // allow all users to perform 'index' and 'view' actions
+		 		'actions'=>array('index','view'),
+		 		'users'=>array('*'),
+		 	),
+		 	array('allow', // allow authenticated user to perform 'create' and 'update' actions
+		 		'actions'=>array('create','update'),
+		 		'users'=>array('@'),
+		 	),
+		 	array('allow', // allow admin user to perform 'admin' and 'delete' actions
+		 		'actions'=>array('admin','delete'),
+		 		'users'=>array('admin'),
+		 	),
+		 	array('deny',  // deny all users
+		 		'users'=>array('*'),
+		 	),
+		 	array(
+				array('allow', // allow all users to perform 'index' and 'view' actions 
+					'controllers'=>array('issue','project','user'), 
+					'actions'=>array('index','view','adduser'),
+					'users'=>array('@'),
+				),
+			)
+		 );
+		
 	}
 
 	/**
@@ -172,4 +181,32 @@ class ProjectController extends Controller
 			Yii::app()->end();
 		}
 	}
+
+	public function actionAdduser($id)
+	{
+		die();
+		$project = $this->loadModel($id); 
+		if(!Yii::app()->user->checkAccess('createUser', array('project'=>$project)))
+		{
+			throw new CHttpException(403,'You are not authorized to perform this action.');
+		}
+		$form=new ProjectUserForm; 
+		if(isset($_POST['ProjectUserForm']))
+		{ 
+			$form->attributes=$_POST['ProjectUserForm']; 
+			$form->project = $project;
+			if($form->validate())
+			{
+				if($form->assign()) 
+				{
+					Yii::app()->user->setFlash('success',$form->username . " has been added to the project." );
+					$form->unsetAttributes(); 
+					$form->clearErrors();
+				}
+			}
+		}
+		$form->project = $project; 
+		$this->render('adduser',array('model'=>$form));
+	}
+
 }

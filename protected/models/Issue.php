@@ -22,7 +22,7 @@
  * @property User $owner
  * @property Project $project
  */
-class Issue extends CActiveRecord
+class Issue extends DevYiiActiveRecord 
 {
     const TYPE_BUG = 0;
     const TYPE_FEATURE = 1;
@@ -76,12 +76,14 @@ class Issue extends CActiveRecord
 			array('name', 'required'),
             // xac thuc type_id trong form
             array('type_id', 'in', 'range'=>self::getAllowedTypeRange()),
-			array('project_id, type_id, status_id, owner_id, requester_id, create_user_id, update_user_id', 'numerical', 'integerOnly'=>true),
+			//array('project_id, type_id, status_id, owner_id, requester_id, create_user_id, update_user_id', 'numerical', 'integerOnly'=>true),
+			array('project_id, type_id, status_id, owner_id, requester_id ', 'numerical', 'integerOnly'=>true),
 			array('name', 'length', 'max'=>255),
 			array('description, create_time, update_time', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, name, description, project_id, type_id, status_id, owner_id, requester_id, create_time, create_user_id, update_time, update_user_id', 'safe', 'on'=>'search'),
+	//		array('id, name, description, project_id, type_id, status_id, owner_id, requester_id, create_time, create_user_id, update_time, update_user_id', 'safe', 'on'=>'search'),
+			array('id, name, description, project_id, type_id, status_id, owner_id, requester_id', 'safe', 'on'=>'search'),
 
             array('status_id','in','range'=>self::getAllowedStatusRange()),
 		);
@@ -117,10 +119,10 @@ class Issue extends CActiveRecord
 			'status_id' => 'Status',
 			'owner_id' => 'Owner',
 			'requester_id' => 'Requester',
-			'create_time' => 'Create Time',
-			'create_user_id' => 'Create User',
-			'update_time' => 'Update Time',
-			'update_user_id' => 'Update User',
+//			'create_time' => 'Create Time',
+//			'create_user_id' => 'Create User',
+//			'update_time' => 'Update Time',
+//			'update_user_id' => 'Update User',
 		);
 	}
 
@@ -150,10 +152,13 @@ class Issue extends CActiveRecord
 		$criteria->compare('status_id',$this->status_id);
 		$criteria->compare('owner_id',$this->owner_id);
 		$criteria->compare('requester_id',$this->requester_id);
-		$criteria->compare('create_time',$this->create_time,true);
-		$criteria->compare('create_user_id',$this->create_user_id);
-		$criteria->compare('update_time',$this->update_time,true);
-		$criteria->compare('update_user_id',$this->update_user_id);
+//		$criteria->compare('create_time',$this->create_time,true);
+//		$criteria->compare('create_user_id',$this->create_user_id);
+//		$criteria->compare('update_time',$this->update_time,true);
+//		$criteria->compare('update_user_id',$this->update_user_id);
+
+        $criteria->condition = 'project_id =:projectID';
+        $criteria->params = array(':projectID' => $this->project_id);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
